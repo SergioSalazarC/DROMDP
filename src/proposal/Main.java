@@ -5,6 +5,7 @@ import grafo.optilib.results.Experiment;
 import proposal.algorithm.*;
 import proposal.constructive.GreedyDestructive;
 import proposal.improvement.LocalSearch2;
+import proposal.shake.*;
 import proposal.structure.DROMDFactory;
 import proposal.structure.DROMDInstance;
 import proposal.structure.DROMDSolution;
@@ -16,9 +17,15 @@ public class Main {
     public static final int MAX_VALUE=3;
     public static void main(String[] args) {
         Algorithm<DROMDInstance, DROMDSolution>[] algorithms = new Algorithm[]{
-                new IteratedLocalSearch_multipleExecutions(new GreedyDestructive(MAX_VALUE),new LocalSearch2(),80,0.1251,2,20),
+                new IteratedLocalSearch_multipleExecutions(new GreedyDestructive(MAX_VALUE),new LocalSearch2(),80,0.125,2,1, new SOTAShake()),
+                new IteratedLocalSearch_multipleExecutions(new GreedyDestructive(MAX_VALUE),new LocalSearch2(),80,0.125,2,1, new SpatialClusterShake()),
+                new IteratedLocalSearch_multipleExecutions(new GreedyDestructive(MAX_VALUE),new LocalSearch2(),80,0.125,2,1, new HubRelocationShake()),
+                new IteratedLocalSearch_multipleExecutions(new GreedyDestructive(MAX_VALUE),new LocalSearch2(),80,0.125,2,1, new DegreeBiasedRuinShake()),
+                new IteratedLocalSearch_multipleExecutions(new GreedyDestructive(MAX_VALUE),new LocalSearch2(),80,0.125,2,1, new LabelDowngradeShake()),
+                new IteratedLocalSearch_multipleExecutions(new GreedyDestructive(MAX_VALUE),new LocalSearch2(),80,0.125,2,1, new UniformRandomRuinShake()),
+                new IteratedLocalSearch_multipleExecutions(new GreedyDestructive(MAX_VALUE),new LocalSearch2(),80,0.125,2,1, new LLMShake()),
         };
-        String instanceFolder = ((args.length == 0) ? "instances/HB": args[0]);
+        String instanceFolder = ((args.length == 0) ? "instances/less10": args[0]);
         DROMDFactory factory = new DROMDFactory();
         Experiment<DROMDInstance, DROMDFactory, DROMDSolution> experiment = new Experiment<>(algorithms, factory);
 

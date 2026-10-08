@@ -7,6 +7,8 @@ import grafo.optilib.results.Result;
 import grafo.optilib.tools.RandomManager;
 import grafo.optilib.tools.Timer;
 import proposal.Main;
+import proposal.shake.NonShake;
+import proposal.shake.Shake;
 import proposal.structure.DROMDInstance;
 import proposal.structure.DROMDSolution;
 
@@ -21,19 +23,24 @@ public class IteratedLocalSearch_multipleExecutions implements Algorithm<DROMDIn
     private DROMDSolution bestSol;
     private Constructive<DROMDInstance, DROMDSolution> constructive;
     private Improvement<DROMDSolution> improvement;
+    private Shake shake;
+
+
     public IteratedLocalSearch_multipleExecutions(Constructive<DROMDInstance, DROMDSolution> constructive, int maxIWI, double perturbationPercentage, int p) {
         this.constructive=constructive;
         this.maxIWI=maxIWI;
         this.perturbationPercentage=perturbationPercentage;
         this.p=p;
+        this.shake=new NonShake();
     }
-    public IteratedLocalSearch_multipleExecutions(Constructive<DROMDInstance, DROMDSolution> constructive, Improvement<DROMDSolution> improvement, int maxIWI, double perturbationPercentage, int p, int numExecutions) {
+    public IteratedLocalSearch_multipleExecutions(Constructive<DROMDInstance, DROMDSolution> constructive, Improvement<DROMDSolution> improvement, int maxIWI, double perturbationPercentage, int p, int numExecutions, Shake shake) {
         this.constructive=constructive;
         this.improvement=improvement;
         this.maxIWI=maxIWI;
         this.perturbationPercentage=perturbationPercentage;
         this.p=p;
         this.numExecutions=numExecutions;
+        this.shake=shake;
     }
     @Override
     public Result execute(DROMDInstance instance) {
@@ -50,7 +57,7 @@ public class IteratedLocalSearch_multipleExecutions implements Algorithm<DROMDIn
             int itersWithoutImprove=0;
             while(itersWithoutImprove<maxIWI){
                 DROMDSolution localSol=new DROMDSolution(bestSol);
-                perturb(localSol);
+                localSol = shake.perturb(localSol);
                 if(improvement!=null) improvement.improve(localSol);
                 localSol.clean();
                 if(localSol.getOF()<bestSol.getOF()){
@@ -69,30 +76,7 @@ public class IteratedLocalSearch_multipleExecutions implements Algorithm<DROMDIn
         //System.out.println(bestSol.getOF()+" "+Timer.getTime()/1000f);
         return result;
     }
-    private void perturb(DROMDSolution solution){
 
-        List<Integer> candidates=solution.getInstance().getCandidates();
-        int limit= (int) Math.ceil(solution.getInstance().getNumNodes()*perturbationPercentage);
-        if(p==1){ //pongo valor aleatorio a un nodo y arreglo sus vecinos (entre 0 y su valor original??)
-            for(int i=0; i<limit; i++){
-                int node=candidates.get(i);
-                int rnd=RandomManager.getRandom().nextInt(Main.MIN_VALUE,Main.MAX_VALUE+1);
-                solution.addLabel(node,rnd);
-                if(!solution.isFeasibleTheMovement(node)){
-                    solution.fixNeighboursValue(node);
-                }
-            }
-        }else{ //pongo un numero aleatorio entre el asignado previamente y 3 de momento esto funciona mejor que la de arriba
-            for(int i=0; i<limit; i++){
-                int node=candidates.get(i);
-                int originalValue=solution.getNodeValue(node);
-                if(originalValue!=Main.MAX_VALUE){
-                    int rnd=RandomManager.getRandom().nextInt(originalValue+1,Main.MAX_VALUE+1);
-                    solution.addLabel(node,rnd);
-                }
-            }
-        }
-    }
     @Override
     public DROMDSolution getBestSolution() {
         return bestSol;
@@ -102,6 +86,6 @@ public class IteratedLocalSearch_multipleExecutions implements Algorithm<DROMDIn
         if(improvement!=null){
             imp=improvement.toString()+"_";
         }
-        return this.getClass().getSimpleName()+"("+constructive.toString()+"_"+imp+"ItersWI"+maxIWI+"Perturbation"+p+"percentage"+perturbationPercentage+")";
+        return this.getClass().getSimpleName()+"("+shake.getClass().getSimpleName()+")";
     }
 }
