@@ -30,7 +30,7 @@ public class Main {
                 new IteratedLocalSearch_multipleExecutions(new HubForcingShake(),20),
                 new IteratedLocalSearch_multipleExecutions(new RandomLabelShake(),20),
         };
-        String instanceFolder = ((args.length == 0) ? "instances": args[0]);
+        String instanceFolder = ((args.length == 0) ? "instances/All": args[0]);
         DROMDFactory factory = new DROMDFactory();
         Experiment<DROMDInstance, DROMDFactory, DROMDSolution> experiment = new Experiment<>(algorithms, factory);
 
