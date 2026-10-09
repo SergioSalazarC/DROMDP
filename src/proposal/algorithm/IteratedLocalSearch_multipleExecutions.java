@@ -7,6 +7,8 @@ import grafo.optilib.results.Result;
 import grafo.optilib.tools.RandomManager;
 import grafo.optilib.tools.Timer;
 import proposal.Main;
+import proposal.constructive.GreedyDestructive;
+import proposal.improvement.LocalSearch2;
 import proposal.shake.NonShake;
 import proposal.shake.Shake;
 import proposal.structure.DROMDInstance;
@@ -24,6 +26,26 @@ public class IteratedLocalSearch_multipleExecutions implements Algorithm<DROMDIn
     private Constructive<DROMDInstance, DROMDSolution> constructive;
     private Improvement<DROMDSolution> improvement;
     private Shake shake;
+
+    public IteratedLocalSearch_multipleExecutions(Shake shake){
+        this.shake=shake;
+        this.improvement=new LocalSearch2();
+        this.constructive=new GreedyDestructive(3);
+        this.maxIWI=80;
+        this.perturbationPercentage=0.125;
+        this.p=2;
+        this.numExecutions=1;
+    }
+
+    public IteratedLocalSearch_multipleExecutions(Shake shake, int numExec){
+        this.shake=shake;
+        this.improvement=new LocalSearch2();
+        this.constructive=new GreedyDestructive(3);
+        this.maxIWI=80;
+        this.perturbationPercentage=0.125;
+        this.p=2;
+        this.numExecutions=numExec;
+    }
 
 
     public IteratedLocalSearch_multipleExecutions(Constructive<DROMDInstance, DROMDSolution> constructive, int maxIWI, double perturbationPercentage, int p) {
